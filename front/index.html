@@ -1,6 +1,58 @@
 <!DOCTYPE html>
-<html>
-  <body>
-    <h1>Upload file</h1>
-  </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Image Upload Form</title>
+    <style>
+      #preview {
+        margin: 10px;
+        max-width: 600px;
+        max-height: 600px;
+      }
+    </style>
+</head>
+<body>
+    <h1>Upload an Image</h1>
+    <form action="/upload-image"
+          method="POST"
+          enctype="multipart/form-data">
+        <label for="image">Choose an image to upload:</label>
+        <input type="file"
+               id="image"
+               name="image"
+               accept="image/*"
+               onchange="previewImage(event)"
+               required>
+        <select name="select">
+          <option value="value1" selected>food</option>
+          <option value="value2">nature</option>
+          <option value="value3">city</option>
+        </select>
+        <br><br>
+        <img id="preview" src="">
+        <br><br>
+        <input type="submit"
+               value="Upload Image">
+    </form>
+
+    <script>
+      function previewImage(event) {
+        const preview = document.getElementById('preview');
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function() {
+          preview.src = reader.result;
+        };
+
+        if (file) {
+          reader.readAsDataURL(file);
+        } else {
+          preview.src = "";
+        }
+      }
+    </script>
+</body>
 </html>
