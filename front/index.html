@@ -15,7 +15,7 @@
 </head>
 <body>
     <h1>Upload an Image</h1>
-    <form action="/upload-image/"
+    <form action="http://127.0.0.1:8000/upload/"
           method="POST"
           enctype="multipart/form-data">
         <label for="image">Choose an image to upload:</label>
@@ -25,10 +25,12 @@
                accept="image/*"
                onchange="previewImage(event)"
                required>
-        <select name="select">
-          <option value="value1" selected>food</option>
-          <option value="value2">nature</option>
-          <option value="value3">city</option>
+        <select id="id_category"
+                name="category"
+                required>
+          <option value="food" selected>Food</option>
+          <option value="nature">Nature</option>
+          <option value="city">City</option>
         </select>
         <br><br>
         <img id="preview" src="">
