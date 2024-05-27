@@ -22,6 +22,6 @@ from uploadapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('index/', view=views.index_template),
+    path('index/', views.index_template),
     path('upload/', views.upload_image, name='upload')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
