@@ -9,7 +9,7 @@ import logging
 import tensorflow as tf
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing import image as tf_image
-
+import numpy as np
 from PIL import Image as PILImage
 
 logging.basicConfig(level=logging.DEBUG)
