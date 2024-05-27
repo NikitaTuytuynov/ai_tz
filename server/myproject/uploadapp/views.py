@@ -4,8 +4,6 @@ from django.http import HttpResponse
 from .forms import ImageUploadForm
 import os
 
-# for avoid csrf token
-@csrf_exempt
 def upload_image(request):
   if request.method == 'POST':
     form = ImageUploadForm(request.POST, request.FILES)
@@ -17,3 +15,6 @@ def upload_image(request):
       image = form.cleaned_data['image']
 
     return HttpResponse('done')
+
+def index_template(request):
+  return render(request, 'uploadapp/index.html')
