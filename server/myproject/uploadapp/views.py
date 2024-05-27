@@ -69,9 +69,10 @@ def upload_image(request):
         return HttpResponse('An unexpected error occurred.')
 
     else:
-      return HttpResponse('Incorrect request method')
+      logging.error(f"Incorrect request method: {request.method}")
+      return HttpResponse('Incorrect request method.')
 
   return render(request, 'uploadapp/index.html')
 
-def index_template(request):
+def get_index_template(request):
   return render(request, 'uploadapp/index.html')

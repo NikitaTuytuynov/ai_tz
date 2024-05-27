@@ -7,7 +7,6 @@ class Image(models.Model):
     ('city', 'City')
   ]
 
-  # save image to media folder
   image = models.ImageField(upload_to='images/')
   category = models.CharField(max_length=100, choices=CATEGORY_CHOICES)
 
