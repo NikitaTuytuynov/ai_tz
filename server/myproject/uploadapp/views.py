@@ -12,6 +12,7 @@ from tensorflow.keras.preprocessing import image as tf_image
 import numpy as np
 from PIL import Image as PILImage
 
+# Add Debug
 logging.basicConfig(level=logging.DEBUG)
 
 def upload_image(request):
@@ -26,12 +27,6 @@ def upload_image(request):
 
       # Local save
       form.save()
-
-      # Save to MongoDB
-      client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
-      db = client[settings.MONGO_DB_NAME]
-      fs = GridFS(db)
-      fs.put(file_content, filename=image_file.name, category=category, content_type=image_file.content_type)
 
       # Image classification using MobileNetV2
       model = MobileNetV2(weights='imagenet')
@@ -49,15 +44,19 @@ def upload_image(request):
       predictions = model.predict(img_array)
       decoded_predictions = decode_predictions(predictions, top=3)[0]
 
-      # Debug: Log predictions
-      logging.debug(f"Predictions: {decoded_predictions}")
-
       # Prepare the prediction results
+      prediction_names = [pred[1] for pred in decoded_predictions]
       prediction_text = ', '.join([f"{pred[1]} ({pred[2]*100:.2f}%)" for pred in decoded_predictions])
+
+      # Save to MongoDB
+      client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
+      db = client[settings.MONGO_DB_NAME]
+      fs = GridFS(db)
+      fs.put(file_content, filename=image_file.name, categoryByUser=category, categoryByAI=prediction_names, content_type=image_file.content_type)
 
       return HttpResponse(f'Predictions: {prediction_text}')
 
-  # return render(request, 'uploadapp/index.html')
+  return render(request, 'uploadapp/index.html')
 
 def index_template(request):
   return render(request, 'uploadapp/index.html')
