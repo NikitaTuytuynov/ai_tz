@@ -129,6 +129,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # MongoDB Configuration
+
 MONGO_DB_NAME = 'images'
 
 MONGO_DB_HOST = 'localhost'
