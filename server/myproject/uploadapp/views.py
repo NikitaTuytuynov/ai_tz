@@ -1,3 +1,4 @@
+from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.conf import settings
@@ -16,69 +17,72 @@ from tensorflow.keras.preprocessing import image as tf_image
 # Add logging
 logging.basicConfig(level=logging.DEBUG)
 
+@api_view(['POST'])
 def upload_image(request):
-  if request.method == 'POST':
-    form = ImageUploadForm(request.POST, request.FILES)
-    if form.is_valid():
-      categoryByUser = form.cleaned_data['categoryByUser']
-      image_file = form.files['image']
+  form = ImageUploadForm(request.POST, request.FILES)
 
-      try:
-        file_content = image_file.read()
-        logging.debug(f"File content length: {len(file_content)}")
+  if form.is_valid():
+    categoryByUser = form.cleaned_data['categoryByUser']
+    image_file = form.files['image']
 
-        # Local save
-        form.save()
+    try:
+      file_content = image_file.read()
+      logging.debug(f"File content length: {len(file_content)}")
 
-        # Image classification using MobileNetV2
-        model = MobileNetV2(weights='imagenet')
+      # Local save
+      form.save()
 
-        # Prepare the image for classification
-        img = PILImage.open(image_file)
-        # Ensure image is in RGB format
-        img = img.convert('RGB') 
-        img = img.resize((224, 224))
-        img_array = tf_image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = preprocess_input(img_array)
+      # Image classification using MobileNetV2
+      model = MobileNetV2(weights='imagenet')
 
-        # Perform prediction
-        predictions = model.predict(img_array)
-        decoded_predictions = decode_predictions(predictions, top=3)[0]
+      # Prepare the image for classification
+      img = PILImage.open(image_file)
+      # Ensure image is in RGB format
+      img = img.convert('RGB') 
+      img = img.resize((224, 224))
+      img_array = tf_image.img_to_array(img)
+      img_array = np.expand_dims(img_array, axis=0)
+      img_array = preprocess_input(img_array)
 
-        # Prepare the prediction results
-        prediction_names = [pred[1] for pred in decoded_predictions]
-        prediction_text = ', '.join([f"{pred[1]} ({pred[2]*100:.2f}%)" for pred in decoded_predictions])
+      # Perform prediction
+      predictions = model.predict(img_array)
+      decoded_predictions = decode_predictions(predictions, top=3)[0]
 
-        # Save to MongoDB
-        client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
-        db = client[settings.MONGO_DB_NAME]
-        fs = GridFS(db)
-        fs.put(file_content, filename=image_file.name, categoryByUser=categoryByUser, categoryByAI=prediction_names, content_type=image_file.content_type)
+      # Prepare the prediction results
+      prediction_names = [pred[1] for pred in decoded_predictions]
+      prediction_text = ', '.join([f"{pred[1]} ({pred[2]*100:.2f}%)" for pred in decoded_predictions])
 
-        return HttpResponse(f'Operation Successful!<br><br>User prediction: {categoryByUser}<br>AI predictions: {prediction_text}')
+      # Save to MongoDB
+      client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
+      db = client[settings.MONGO_DB_NAME]
+      fs = GridFS(db)
+      fs.put(file_content, filename=image_file.name, categoryByUser=categoryByUser, categoryByAI=prediction_names, content_type=image_file.content_type)
+
+      return HttpResponse(f'Operation Successful!<br><br>User prediction: {categoryByUser}<br>AI predictions: {prediction_text}')
       
-      # Catch mongo errors
-      except mongo_errors.PyMongoError as error:
-        logging.error(f"MongoDB error: {error}")
-        return HttpResponse('There was an error saving the file to MongoDB.')
+    # Catch mongo errors
+    except mongo_errors.PyMongoError as error:
+      logging.error(f"MongoDB error: {error}")
+      return HttpResponse('There was an error saving the file to MongoDB.')
       
-      # Catch other errors 
-      except Exception as error:
-        logging.error(f"An error occurred: {error}")
-        return HttpResponse('An unexpected error occurred.')
+    # Catch other errors 
+    except Exception as error:
+      logging.error(f"An error occurred: {error}")
+      return HttpResponse('An unexpected error occurred.')
 
-    else:
-      logging.error(f"Incorrect request method: {request.method}")
-      return HttpResponse('Incorrect request method.')
-
-  return render(request, 'uploadapp/index.html')
+  else:
+    logging.error('Form is invalid.')
+    return HttpResponse('Form is invalid.')
 
 
+@api_view(['GET'])
 def image_list(request):
   try:
+    # MongoDB connect
     client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
     db = client[settings.MONGO_DB_NAME]
+
+    # Get all files from fs.files
     fs_files = db['fs.files']
     files = fs_files.find()
 
