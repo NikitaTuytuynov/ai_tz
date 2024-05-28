@@ -18,10 +18,10 @@ Description: Returns a list of uploaded images with their categories and predict
 <br />
 Return example<br />
 [<br />
-$ensp;{<br />
-$emsp;"filename": "example.jpg",<br />
-$emsp;"categoryByUser": "food",<br />
-$emsp;"categoryByAI": ["food", "nature", "city"]<br />
-$ensp;},<br />
-$ensp;...<br />
+$ensp; {<br />
+$emsp; "filename": "example.jpg",<br />
+$emsp; "categoryByUser": "food",<br />
+$emsp; "categoryByAI": ["food", "nature", "city"]<br />
+$ensp; },<br />
+$ensp ;...<br />
 ]<br />
