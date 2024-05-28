@@ -17,11 +17,11 @@ Method: GET<br />
 Description: Returns a list of uploaded images with their categories and predictions.<br />
 <br />
 Return example<br />
-[<br />
-$ensp; {<br />
-$emsp; "filename": "example.jpg",<br />
-$emsp; "categoryByUser": "food",<br />
-$emsp; "categoryByAI": ["food", "nature", "city"]<br />
-$ensp; },<br />
-$ensp ;...<br />
-]<br />
+> [<br />
+>> {<br />
+>>> "filename": "example.jpg",<br />
+>>> "categoryByUser": "food",<br />
+>>> "categoryByAI": ["food", "nature", "city"]<br />
+>> },<br />
+>> ...<br />
+> ]<br />
