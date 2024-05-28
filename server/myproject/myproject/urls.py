@@ -23,6 +23,6 @@ from uploadapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('index/', views.get_index_template),
-    path('api/upload/', views.upload_image, name='upload'),
+    path('api/images/upload', views.upload_image, name='upload'),
     path('api/images/', views.image_list, name='image_list')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
