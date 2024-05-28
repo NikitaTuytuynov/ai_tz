@@ -17,11 +17,12 @@ Method: GET<br />
 Description: Returns a list of uploaded images with their categories and predictions.<br />
 <br />
 Return example<br />
-> [<br />
->> {<br />
->>> "filename": "example.jpg",<br />
->>> "categoryByUser": "food",<br />
->>> "categoryByAI": ["food", "nature", "city"]<br />
->> },<br />
->> ...<br />
-> ]<br />
+```json
+[
+  {
+    "filename": "example.jpg",
+    "categoryByUser": "food",
+    "categoryByAI": ["food", "nature", "city"]
+  },
+  ...
+]
