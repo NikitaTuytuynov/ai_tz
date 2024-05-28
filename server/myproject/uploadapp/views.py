@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.conf import settings
 from .forms import ImageUploadForm
 from PIL import Image as PILImage
@@ -20,7 +20,7 @@ def upload_image(request):
   if request.method == 'POST':
     form = ImageUploadForm(request.POST, request.FILES)
     if form.is_valid():
-      category = form.cleaned_data['category']
+      categoryByUser = form.cleaned_data['categoryByUser']
       image_file = form.files['image']
 
       try:
@@ -54,9 +54,9 @@ def upload_image(request):
         client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
         db = client[settings.MONGO_DB_NAME]
         fs = GridFS(db)
-        fs.put(file_content, filename=image_file.name, categoryByUser=category, categoryByAI=prediction_names, content_type=image_file.content_type)
+        fs.put(file_content, filename=image_file.name, categoryByUser=categoryByUser, categoryByAI=prediction_names, content_type=image_file.content_type)
 
-        return HttpResponse(f'Operation Successful!<br><br>User prediction: {category}<br>AI predictions: {prediction_text}')
+        return HttpResponse(f'Operation Successful!<br><br>User prediction: {categoryByUser}<br>AI predictions: {prediction_text}')
       
       # Catch mongo errors
       except mongo_errors.PyMongoError as error:
@@ -73,6 +73,38 @@ def upload_image(request):
       return HttpResponse('Incorrect request method.')
 
   return render(request, 'uploadapp/index.html')
+
+
+def image_list(request):
+  try:
+    client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
+    db = client[settings.MONGO_DB_NAME]
+    fs_files = db['fs.files']
+    files = fs_files.find()
+
+    file_list = []
+
+    for file in files:
+      file_info = {
+        'filename': file['filename'],
+        'categoryByUser': file['categoryByUser'],
+        'categoryByAI': file['categoryByAI']
+      }
+
+      file_list.append(file_info)
+
+    return JsonResponse(file_list, safe=False)
+  
+  # Catch mongo errors
+  except mongo_errors.PyMongoError as error:
+    logging.error(f"MongoDB error: {error}")
+    return HttpResponse('There was an error getting the files from MongoDB.')
+
+  # Catch other errors 
+  except Exception as error:
+    logging.error(f"An error occurred: {error}")
+    return HttpResponse('An unexpected error occurred.')
+
 
 def get_index_template(request):
   return render(request, 'uploadapp/index.html')
