@@ -12,10 +12,27 @@
         max-height: 100%;
       }
     </style>
+    <script>
+      function previewImage(event) {
+        const preview = document.getElementById('preview');
+        const file = event.target.files[0];
+        const reader = new FileReader();
+    
+        reader.onload = function() {
+          preview.src = reader.result;
+        };
+    
+        if (file) {
+          reader.readAsDataURL(file);
+        } else {
+          preview.src = "";
+        }
+      }
+    </script>
 </head>
 <body>
     <h1>Upload an Image</h1>
-    <form action="http://127.0.0.1:8000/upload/"
+    <form action="http://127.0.0.1:8000/api/upload/"
           method="POST"
           enctype="multipart/form-data">
           {% csrf_token %}
@@ -42,23 +59,5 @@
         <input type="submit"
                value="Upload Image">
     </form>
-
-    <script>
-      function previewImage(event) {
-        const preview = document.getElementById('preview');
-        const file = event.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = function() {
-          preview.src = reader.result;
-        };
-
-        if (file) {
-          reader.readAsDataURL(file);
-        } else {
-          preview.src = "";
-        }
-      }
-    </script>
 </body>
 </html>

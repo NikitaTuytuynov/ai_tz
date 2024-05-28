@@ -1,18 +1,19 @@
+from pymongo import MongoClient, errors as mongo_errors
 from rest_framework.decorators import api_view
-from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.conf import settings
 from .forms import ImageUploadForm
 from PIL import Image as PILImage
-from pymongo import MongoClient, errors as mongo_errors
 from gridfs import GridFS
+from .mongodb import db
 import numpy as np
 import logging
 
 # Import tensorflow
-import tensorflow as tf
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing import image as tf_image
+import tensorflow as tf
 
 # Add logging
 logging.basicConfig(level=logging.DEBUG)
@@ -53,8 +54,6 @@ def upload_image(request):
       prediction_text = ', '.join([f"{pred[1]} ({pred[2]*100:.2f}%)" for pred in decoded_predictions])
 
       # Save to MongoDB
-      client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
-      db = client[settings.MONGO_DB_NAME]
       fs = GridFS(db)
       fs.put(file_content, filename=image_file.name, categoryByUser=categoryByUser, categoryByAI=prediction_names, content_type=image_file.content_type)
 
@@ -78,10 +77,6 @@ def upload_image(request):
 @api_view(['GET'])
 def image_list(request):
   try:
-    # MongoDB connect
-    client = MongoClient(settings.MONGO_DB_HOST, settings.MONGO_DB_PORT)
-    db = client[settings.MONGO_DB_NAME]
-
     # Get all files from fs.files
     fs_files = db['fs.files']
     files = fs_files.find()
