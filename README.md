@@ -1,3 +1,5 @@
+**All commits were loaded into one time, this is the result of a rebase**
+
 All the necessary libraries are in **requirements.txt**<br />
 <br />
 /index/  - main page<br />
